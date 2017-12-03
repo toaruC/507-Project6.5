@@ -1,4 +1,7 @@
 # Import statements necessary
+import requests
+import random
+import json
 from flask import Flask, render_template
 from flask_script import Manager
 
@@ -6,6 +9,16 @@ from flask_script import Manager
 app = Flask(__name__)
 
 manager = Manager(app)
+
+# Functions
+def datamuse_answer_this(word):
+    # based on https://www.datamuse.com/api/
+    response = requests.get('https://api.datamuse.com/words', params={
+        'rel_rhy': word,
+        'format': 'json'
+    })
+    result = response.json()
+    return result
 
 # Routes
 
@@ -30,6 +43,13 @@ def basic_values_list(name):
 
 
 ## PART 1: Add another route /word/<new_word> as the instructions describe.
+@app.route('/word/<new_word>')
+def get_rhyme(new_word):
+    # TODO get result and answer values
+    result = datamuse_answer_this(new_word)
+    # rhyme = result[0].get('word')
+    rhyme = random.choice(result).get('word')
+    return rhyme
 
 
 ## PART 2: Edit the following route so that the photo_tags.html template will render
@@ -37,7 +57,7 @@ def basic_values_list(name):
 def photo_titles(tag, num):
     # HINT: Trying out the flickr accessing code in another file and seeing what data you get will help debug what you need to add and send to the template!
     # HINT 2: This is almost all the same kind of nested data investigation you've done before!
-    FLICKR_KEY = "" # TODO: fill in a flickr key
+    FLICKR_KEY = "9c540886448a9d7202755ef644a0ca0f" # TODO: fill in a flickr key
     baseurl = 'https://api.flickr.com/services/rest/'
     params = {}
     params['api_key'] = FLICKR_KEY
@@ -49,9 +69,16 @@ def photo_titles(tag, num):
     response_obj = requests.get(baseurl, params=params)
     trimmed_text = response_obj.text[14:-1]
     flickr_data = json.loads(trimmed_text)
+    print(flickr_data)
     # TODO: Add some code here that processes flickr_data in some way to get what you nested
+    rtvd_num = len(flickr_data['photos']['photo'])
+    titles = []
+    for i in flickr_data['photos']['photo']:
+        titles.append(i['title'])
+
+    print(titles)
     # TODO: Edit the invocation to render_template to send the data you need
-    return render_template('photo_tags.html')
+    return render_template('photo_info.html', num = rtvd_num, photo_titles = titles)
 
 
 
