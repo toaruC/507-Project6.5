@@ -69,14 +69,15 @@ def photo_titles(tag, num):
     response_obj = requests.get(baseurl, params=params)
     trimmed_text = response_obj.text[14:-1]
     flickr_data = json.loads(trimmed_text)
-    print(flickr_data)
+    # print(flickr_data)
+
     # TODO: Add some code here that processes flickr_data in some way to get what you nested
     rtvd_num = len(flickr_data['photos']['photo'])
     titles = []
     for i in flickr_data['photos']['photo']:
         titles.append(i['title'])
-
-    print(titles)
+    # print(titles)
+    
     # TODO: Edit the invocation to render_template to send the data you need
     return render_template('photo_info.html', num = rtvd_num, photo_titles = titles)
 
